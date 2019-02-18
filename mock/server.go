@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// DspResponse is convert to json
 type DspResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
@@ -21,6 +22,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	dspjson.URL = "http://hoge.com"
 	dspjson.Price = "50"
 	out, _ := json.Marshal(dspjson)
+
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(out))
 
 }
