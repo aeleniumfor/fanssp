@@ -7,22 +7,18 @@ import (
 	"net/http"
 )
 
-// DspResponse is convert to json
-type DspResponse struct {
-	RequestID string `json:"request_id"`
-	URL       string `json:"url"`
-	Price     string `json:"price"`
+// SspResponse is convert to json
+type SspResponse struct {
+	URL string `json:"url"`
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+
 	id, _ := uuid.NewUUID()
-
-	dspjson := DspResponse{}
-	dspjson.RequestID = id.String()
-	dspjson.URL = "http://hoge.com"
-	dspjson.Price = "50"
-	out, _ := json.Marshal(dspjson)
-
+	fmt.Println(id)
+	sspjson := SspResponse{}
+	sspjson.URL = "http://hoge.example.com"
+	out, _ := json.Marshal(sspjson)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(out))
 }
