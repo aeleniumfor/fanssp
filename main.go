@@ -44,11 +44,10 @@ func request(dsprequest DspRequest) {
 	url := "http://localhost:8080"
 
 	json, _ := json.Marshal(dsprequest)
-
 	req, _ := http.NewRequest(
 		"POST",
 		url,
-		bytes.NewBuffer([]byte(json)),
+		bytes.NewBuffer([]byte(string(json))),
 	)
 
 	client := &http.Client{}
