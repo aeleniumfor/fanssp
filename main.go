@@ -32,8 +32,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		RequestID:   id.String(),
 	}
 	request(dsprequest)
-	
-	
+
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
+	"time"
 )
 
 // DspResponse is convert to json
@@ -12,6 +13,12 @@ type DspResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
 	Price     string `json:"price"`
+}
+
+func now() {
+	t := time.Now()
+	return
+
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
