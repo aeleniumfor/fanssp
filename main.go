@@ -27,11 +27,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	sspjson := SspResponse{"http://hoge.example.com"}
 
 	dsprequest := DspRequest{
-		SspName : "hoge",
+		SspName:     "hoge",
 		RequestTime: "time",
-		RequestID: id.String(), 
+		RequestID:   id.String(),
 	}
-
+	request(dsprequest)
+	
+	
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
@@ -43,19 +45,18 @@ func request(dsprequest DspRequest) {
 
 	json, _ := json.Marshal(dsprequest)
 
-	res, err := http.NewRequest(
+	req, _ := http.NewRequest(
 		"POST",
 		url,
 		bytes.NewBuffer([]byte(json)),
 	)
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	client := &http.Client{}
+	res, _ := client.Do(req)
 
 	defer res.Body.Close()
-	json, _ := ioutil.ReadAll(res.Body)
-	fmt.Println(string(json))
+	body, _ := ioutil.ReadAll(res.Body)
+	fmt.Println(string(body))
 
 }
 
