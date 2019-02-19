@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"sort"
+
+	"github.com/google/uuid"
 )
 
 // SspResponse is convert to json
@@ -37,7 +38,7 @@ type WinNotice struct {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
-	count := 10
+	count := 5
 	var dspres []DspResponse
 	id, _ := uuid.NewUUID()
 
@@ -48,7 +49,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// DSPに対してリクエスを行う
-	ch := make(chan []byte)
+	ch := make(chan []byte, 5)
 	for i := 0; i < count; i++ {
 		go func() {
 			ch <- request(dsprequest)
@@ -56,7 +57,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := 0; i < count; i++ {
-
 		dsp := DspResponse{}
 		json.Unmarshal(<-ch, &dsp)
 		dspres = append(dspres, dsp)
@@ -117,7 +117,7 @@ func winrequest(win WinNotice) {
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	fmt.Println(string(body))
-	
+
 }
 
 func main() {
