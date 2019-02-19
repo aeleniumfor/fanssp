@@ -1,26 +1,11 @@
-version: "3.3"
+version: "3"
 services:
     mock_dsp:
         build: ./mock/
-        container_name: mock_server
         restart: always
-        ports:
-            - 8080:8080
-        tty:
-            true
-        volumes:
-            - ./mock:/go/src/github.com/mock
+    
+    ssp:
+        build: ./ssp/
+        restart: always
         environment:
-            - PORT:8080
-            - GO111MODULE=on
-
-    # ssp:
-    #     build: /.
-    #     container_name: ssp
-    #     restart: always
-    #     ports:
-    #         - 8080:8080
-    #     depends_on:
-    #         - postgres
-    #     environment:
-    #         PORT:8080
+            - DSPHOSTS="http://fanssp_mock_dsp_1:8080 http://fanssp_mock_dsp_2:8080 http://fanssp_mock_dsp_3:8080"  

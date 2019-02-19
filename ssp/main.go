@@ -6,10 +6,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"sort"
+	"strings"
 
 	"github.com/google/uuid"
 )
+
+var hosts string = os.Getenv("DSPHOSTS")
+
+// HostArray is Split
+var HostArray []string = strings.Split(hosts, " ")
 
 // SspResponse is convert to json
 type SspResponse struct {
@@ -38,7 +45,7 @@ type WinNotice struct {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
-	count := 5
+	count := len(HostArray) // hostの数に依存する
 	var dspres []DspResponse
 	id, _ := uuid.NewUUID()
 
@@ -51,9 +58,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// DSPに対してリクエスを行う
 	ch := make(chan []byte, 5)
 	for i := 0; i < count; i++ {
-		go func() {
-			ch <- request(dsprequest)
-		}()
+		go func(i int) {
+			// HostArray[i]はurlの配列を一つ一つに分解したもの
+			ch <- request(dsprequest, HostArray[i])
+		}(i)
 	}
 
 	for i := 0; i < count; i++ {
@@ -79,9 +87,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest) []byte {
-	url := "http://localhost:8085"
-
+func request(dsprequest DspRequest, url string) []byte {
 	json, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",

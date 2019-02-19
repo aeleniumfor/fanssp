@@ -65,8 +65,8 @@ func now() string {
 }
 
 func main() {
-	fmt.Println("server start")
+	fmt.Println("start mock server")
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/win", winNotice)
-	http.ListenAndServe(":8085", nil)
+	http.ListenAndServe(":8080", nil)
 }
