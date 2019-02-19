@@ -24,7 +24,6 @@ type DspRequest struct {
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := uuid.NewUUID()
-	sspjson := SspResponse{"http://hoge.example.com"}
 
 	dsprequest := DspRequest{
 		SspName:     "hoge",
@@ -32,17 +31,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		RequestID:   id.String(),
 	}
 
-
 	// DSPに対してリクエスを行う
 	request(dsprequest)
 
+	sspjson := SspResponse{"http://hoge.example.com"}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest) {
+func request(dsprequest DspRequest) string {
 	url := "http://localhost:8080"
 
 	json, _ := json.Marshal(dsprequest)
@@ -57,8 +56,7 @@ func request(dsprequest DspRequest) {
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
-	fmt.Println(string(body))
-
+	return string(body)
 }
 
 func main() {
