@@ -3,19 +3,7 @@ services:
     mock_dsp:
         build: ./mock/
         restart: always
-        deploy:
-            resources:
-                limits:
-                    cpus: '0.20'
-                    memory: 50M
 
-    # ssp:
-    #     build: /.
-    #     container_name: ssp
-    #     restart: always
-    #     ports:
-    #         - 8080:8080
-    #     depends_on:
-    #         - postgres
-    #     environment:
-    #         PORT:8080
+    ssp:
+        build: ./ssp/
+        restart: always
