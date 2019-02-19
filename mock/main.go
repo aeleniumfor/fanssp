@@ -25,7 +25,6 @@ type DspRequest struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-
 	data, _ := ioutil.ReadAll(r.Body)
 	sspReq := DspRequest{}
 	json.Unmarshal(data, &sspReq)

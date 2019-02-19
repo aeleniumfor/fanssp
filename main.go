@@ -7,11 +7,20 @@ import (
 	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
+	"sort"
+	"strconv"
 )
 
 // SspResponse is convert to json
 type SspResponse struct {
 	URL string `json:"url"`
+}
+
+// DspResponse is convert to json
+type DspResponse struct {
+	RequestID string `json:"request_id"`
+	URL       string `json:"url"`
+	Price     string `json:"price"`
 }
 
 // DspRequest is convert to json
@@ -23,6 +32,8 @@ type DspRequest struct {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
+	count := 10
+	var dspres [10]DspResponse
 	id, _ := uuid.NewUUID()
 
 	dsprequest := DspRequest{
@@ -32,7 +43,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// DSPに対してリクエスを行う
-	request(dsprequest)
+	ch := make(chan []byte)
+	for i := 0; i < count; i++ {
+		go func() {
+			ch <- request(dsprequest)
+		}()
+	}
+
+	for i := 0; i < count; i++ {
+		fmt.Println(i)
+		dsp := DspResponse{}
+		json.Unmarshal(<-ch, &dsp)
+		dspres[i] = dsp
+	}
+
+	sort.Slice(dspres, func(i, j int) bool {
+		// 数字以外が入ってたら終わる
+		isort, _ := strconv.Atoi(dspres[j].Price)
+		jsort, _ := strconv.Atoi(dspres[j].Price)
+		return isort < jsort
+	})
+	fmt.Println(dspres)
 
 	sspjson := SspResponse{"http://hoge.example.com"}
 	out, _ := json.Marshal(sspjson)
@@ -41,7 +72,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest) string {
+func request(dsprequest DspRequest) []byte {
 	url := "http://localhost:8085"
 
 	json, _ := json.Marshal(dsprequest)
@@ -56,10 +87,9 @@ func request(dsprequest DspRequest) string {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
-	return string(body)
+	res.Body.Close()
+	return body
 }
 
 func main() {
