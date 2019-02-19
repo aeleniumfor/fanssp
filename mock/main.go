@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"io/ioutil"
 	"encoding/json"
 	"fmt"
@@ -23,11 +24,6 @@ type DspRequest struct {
 	RequestID   string `json:"request_id"`
 }
 
-func now() string {
-	t := time.Now()
-	return t.String()
-
-}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
@@ -35,17 +31,28 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	
 	sspReq := DspRequest{}
 	json.Unmarshal(data,&sspReq)
-	fmt.Println(sspReq)
 
 	dspjson := DspResponse{}
 	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com"
-	dspjson.Price = "50"
+	dspjson.Price = randTOstring()
 	out, _ := json.Marshal(dspjson)
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(out))
 }
+
+
+func randTOstring() string{
+	rand.Seed(time.Now().UnixNano())
+	return string(rand.Int())
+}
+
+func now() string {
+	t := time.Now()
+	return t.String()
+}
+
 
 func main() {
 	fmt.Println("server start")
