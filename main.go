@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
-	"strconv"
 )
 
 // SspResponse is convert to json
@@ -20,7 +19,7 @@ type SspResponse struct {
 type DspResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
-	Price     string `json:"price"`
+	Price     int    `json:"price"`
 }
 
 // DspRequest is convert to json
@@ -51,20 +50,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := 0; i < count; i++ {
-		fmt.Println(i)
+
 		dsp := DspResponse{}
 		json.Unmarshal(<-ch, &dsp)
 		dspres[i] = dsp
 	}
 
-	sort.Slice(dspres, func(i, j int) bool {
-		// 数字以外が入ってたら終わる
-		isort, _ := strconv.Atoi(dspres[j].Price)
-		jsort, _ := strconv.Atoi(dspres[j].Price)
-		return isort < jsort
-	})
-	fmt.Println(dspres)
-
+	dspresslice := dspres[:]
+	// ソートするやつ 数値以外が来たら終わる
+	sort.Slice(dspresslice, func(i, j int) bool { return dspresslice[i].Price > dspresslice[j].Price })
+	
 	sspjson := SspResponse{"http://hoge.example.com"}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -14,7 +13,7 @@ import (
 type DspResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
-	Price     string `json:"price"`
+	Price     int `json:"price"`
 }
 
 // DspRequest is convert to json
@@ -32,7 +31,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	dspjson := DspResponse{}
 	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com"
-	dspjson.Price = randTOstring()
+	dspjson.Price = randTOint()
 
 	fmt.Println(dspjson)
 	out, _ := json.Marshal(dspjson)
@@ -40,10 +39,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(out))
 }
 
-func randTOstring() string {
+func randTOint() int {
 	rand.Seed(time.Now().UnixNano())
-	num := rand.Intn(150)
-	return strconv.Itoa(num)
+	return rand.Intn(150)
 }
 
 func now() string {
