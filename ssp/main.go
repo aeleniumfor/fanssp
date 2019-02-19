@@ -59,6 +59,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	ch := make(chan []byte, 5)
 	for i := 0; i < count; i++ {
 		go func(i int) {
+			// HostArray[i]はurlの配列を一つ一つに分解したもの
 			ch <- request(dsprequest, HostArray[i])
 		}(i)
 	}
