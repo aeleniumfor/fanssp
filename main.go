@@ -29,10 +29,16 @@ type DspRequest struct {
 	RequestID   string `json:"request_id"`
 }
 
+// WinNotice is convert to json
+type WinNotice struct {
+	RequestID string `json:"request_id"`
+	Price     int    `json:"price"`
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	count := 10
-	var dspres [10]DspResponse
+	var dspres []DspResponse
 	id, _ := uuid.NewUUID()
 
 	dsprequest := DspRequest{
@@ -53,14 +59,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 		dsp := DspResponse{}
 		json.Unmarshal(<-ch, &dsp)
-		dspres[i] = dsp
+		dspres = append(dspres, dsp)
 	}
-
-	dspresslice := dspres[:]
 	// ソートするやつ 数値以外が来たら終わる
-	sort.Slice(dspresslice, func(i, j int) bool { return dspresslice[i].Price > dspresslice[j].Price })
-	
-	sspjson := SspResponse{"http://hoge.example.com"}
+	sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
+
+	sspjson := SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
@@ -83,7 +87,7 @@ func request(dsprequest DspRequest) []byte {
 		fmt.Println(err)
 	}
 	body, _ := ioutil.ReadAll(res.Body)
-	res.Body.Close()
+	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎
 	return body
 }
 
