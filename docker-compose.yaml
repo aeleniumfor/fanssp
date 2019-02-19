@@ -1,8 +1,14 @@
-version: "3.3"
+version: "3"
 services:
     mock_dsp:
         build: ./mock/
         restart: always
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.20'
+                    memory: 50M
+
     # ssp:
     #     build: /.
     #     container_name: ssp
