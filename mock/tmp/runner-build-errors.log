@@ -1,0 +1,2 @@
+# github.com/fanssp/mock
+./server.go:7:2: imported and not used: "github.com/fanssp/vendor/github.com/google/uuid"

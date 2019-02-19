@@ -52,7 +52,10 @@ func request(dsprequest DspRequest) string {
 	)
 
 	client := &http.Client{}
-	res, _ := client.Do(req)
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -15,17 +16,30 @@ type DspResponse struct {
 	Price     string `json:"price"`
 }
 
-func now() {
+
+// DspRequest is convert to json
+type DspRequest struct {
+	SspName     string `json:"ssp_name"`
+	RequestTime string `json:"request_time"`
+	RequestID   string `json:"request_id"`
+}
+
+func now() string {
 	t := time.Now()
-	return
+	return t.String()
 
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	id, _ := uuid.NewUUID()
+
+	data, _ := ioutil.ReadAll(r.Body)
+	
+	sspReq := DspRequest{}
+	json.Unmarshal(data,&sspReq)
+	fmt.Println(sspReq)
 
 	dspjson := DspResponse{}
-	dspjson.RequestID = id.String()
+	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com"
 	dspjson.Price = "50"
 	out, _ := json.Marshal(dspjson)
