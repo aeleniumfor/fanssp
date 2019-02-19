@@ -31,6 +31,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		RequestTime: "time",
 		RequestID:   id.String(),
 	}
+
+
+	// DSPに対してリクエスを行う
 	request(dsprequest)
 
 	out, _ := json.Marshal(sspjson)
