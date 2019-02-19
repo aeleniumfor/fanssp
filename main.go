@@ -42,7 +42,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func request(dsprequest DspRequest) string {
-	url := "http://localhost:8080"
+	url := "http://localhost:8085"
 
 	json, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(

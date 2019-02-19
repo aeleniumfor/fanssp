@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"math/rand"
 	"io/ioutil"
 	"encoding/json"
@@ -28,24 +29,25 @@ type DspRequest struct {
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	data, _ := ioutil.ReadAll(r.Body)
-	
 	sspReq := DspRequest{}
 	json.Unmarshal(data,&sspReq)
-
+	fmt.Println(sspReq)
 	dspjson := DspResponse{}
 	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com"
 	dspjson.Price = randTOstring()
 	out, _ := json.Marshal(dspjson)
-
+	
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(out))
 }
 
 
-func randTOstring() string{
+func randTOstring() string {
 	rand.Seed(time.Now().UnixNano())
-	return string(rand.Int())
+	num := rand.Intn(150)
+	fmt.Println(strconv.Itoa(num))
+	return strconv.Itoa(num)
 }
 
 func now() string {
@@ -57,5 +59,5 @@ func now() string {
 func main() {
 	fmt.Println("server start")
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8085", nil)
 }
