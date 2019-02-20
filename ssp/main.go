@@ -78,10 +78,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// dspのレスポンスが全てなかった場合
 		dsp := DspResponse{
 			RequestID: id.String(),
-			URL:       "http://localhost:8080/ごめんね",
+			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
 		}
 		dspres = append(dspres, dsp)
+	} else if len(dspres) == 1 {
+		// レスポンスが1つの場合
+		win := WinNotice{
+			RequestID: id.String(),
+			Price:     1,
+		}
+		winrequest(win, HostArray[0])
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
