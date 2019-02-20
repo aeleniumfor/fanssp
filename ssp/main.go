@@ -112,7 +112,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func request(dsprequest DspRequest, url string) []byte {
 	json, _ := json.Marshal(dsprequest)
-	fmt.Println(json)
+	fmt.Println(string(json))
 	req, _ := http.NewRequest(
 		"POST",
 		url,
