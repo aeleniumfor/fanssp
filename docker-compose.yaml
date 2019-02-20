@@ -8,6 +8,6 @@ services:
         build: ./ssp/
         restart: always
         ports:
-            8080:8081
+            8888:8081
         environment:
             - DSPHOSTS=http://fanssp_mock_dsp_1:8080 http://fanssp_mock_dsp_2:8080 http://fanssp_mock_dsp_3:8080
