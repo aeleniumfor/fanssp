@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"sort"
@@ -79,7 +80,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		Price:     dspres[1].Price,
 	}
 
-	winrequest(win,HostArray[0])
+	winrequest(win, HostArray[0])
 
 	sspjson := SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
@@ -97,9 +98,14 @@ func request(dsprequest DspRequest, url string) []byte {
 	)
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
+
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalln(err)
+	}
+
+	if res == nil {
+		return []byte{}
 	}
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎

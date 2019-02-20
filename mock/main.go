@@ -37,7 +37,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	sspReq := DspRequest{}
 	json.Unmarshal(data, &sspReq)
 	price := randTOint()
-	//time.Sleep(time.Duration(price) * time.Millisecond)
+	time.Sleep(time.Duration(300) * time.Millisecond)
 	dspjson := DspResponse{}
 	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com/" + strconv.Itoa(price)
