@@ -47,7 +47,6 @@ type WinNotice struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("get request")
 	count := len(HostArray) // hostの数に依存する
 	var dspres []DspResponse
 	id, _ := uuid.NewUUID()
@@ -149,7 +148,6 @@ func winrequest(win WinNotice, url string) {
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	fmt.Println(string(body))
-
 }
 
 func main() {
