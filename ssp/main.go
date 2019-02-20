@@ -54,7 +54,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	dsprequest := DspRequest{
 		SspName:     "hoge",
-		RequestTime: "time",
+		RequestTime: now(),
 		RequestID:   ids,
 		AppID:       123,
 	}
@@ -69,7 +69,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}(i)
 	}
 
-	
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
 		data := <-ch
@@ -149,6 +148,12 @@ func winrequest(win WinNotice, url string) {
 	// body, _ := ioutil.ReadAll(res.Body)
 	// res.Body.Close()
 	//fmt.Println(string(body))
+}
+
+func now() string {
+	t := time.Now()
+	str := fmt.Sprintf("%d%02d%02d-%02d%02d%02d.%04d", t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second(), time.Millisecond)
+	return str
 }
 
 func main() {
