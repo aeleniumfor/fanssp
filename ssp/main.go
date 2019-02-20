@@ -67,10 +67,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
-		fmt.Println(<-ch)
-		json.Unmarshal(<-ch, &dsp)
-		dspres = append(dspres, dsp)
+		if len(<-ch) != 0 {
+			json.Unmarshal(<-ch, &dsp)
+			dspres = append(dspres, dsp)
+		}
+
 	}
+
+
+	// ここから分岐する
 	// ソートするやつ 数値以外が来たら終わる
 	sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
 
@@ -81,6 +86,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	winrequest(win, HostArray[0])
+	// ここまで分岐するん
 
 	sspjson := SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
