@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"sort"
@@ -68,6 +67,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
+		fmt.Println(<-ch)
 		json.Unmarshal(<-ch, &dsp)
 		dspres = append(dspres, dsp)
 	}
@@ -99,10 +99,7 @@ func request(dsprequest DspRequest, url string) []byte {
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 
-	res, err := client.Do(req)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	res, _ := client.Do(req)
 
 	if res == nil {
 		return []byte{}
@@ -123,7 +120,7 @@ func winrequest(win WinNotice, url string) {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("にゃーん")
 	}
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()
