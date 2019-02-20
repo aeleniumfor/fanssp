@@ -79,7 +79,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		Price:     dspres[1].Price,
 	}
 
-	winrequest(win)
+	winrequest(win,HostArray[0])
 
 	sspjson := SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
@@ -106,8 +106,7 @@ func request(dsprequest DspRequest, url string) []byte {
 	return body
 }
 
-func winrequest(win WinNotice) {
-	url := "http://localhost:8080/win"
+func winrequest(win WinNotice, url string) {
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
