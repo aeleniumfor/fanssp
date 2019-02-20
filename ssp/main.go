@@ -110,8 +110,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
-
-	time.Sleep(time.Duration(10) * time.Millisecond)
 	fmt.Fprintf(w, outjson)
 }
 
@@ -144,13 +142,13 @@ func winrequest(win WinNotice, url string) {
 	req.Header.Set("Content-type", "application/json")
 
 	client := &http.Client{}
-	res, err := client.Do(req)
+	_, err := client.Do(req)
 	if err != nil {
 		log.Println("にゃーん")
 	}
-	body, _ := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	fmt.Println(string(body))
+	// body, _ := ioutil.ReadAll(res.Body)
+	// res.Body.Close()
+	//fmt.Println(string(body))
 }
 
 func main() {
