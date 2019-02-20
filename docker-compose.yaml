@@ -7,7 +7,6 @@ services:
     ssp:
         build: ./ssp/
         restart: always
-        ports:
-            - 8888:8888
+        network_mode: host
         environment:
             - DSPHOSTS=${HOST1} ${HOST2}
