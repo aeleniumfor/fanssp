@@ -76,11 +76,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	if len(dspres) == 0 {
 		// dspのレスポンスが全てなかった場合
-		dspres[0] = DspResponse{
+		dsp := DspResponse{
 			RequestID: id.String(),
 			URL:       "http://localhost:8080/ごめんね",
 			Price:     0,
 		}
+		dspres = append(dspres, dsp)
+
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
 		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
