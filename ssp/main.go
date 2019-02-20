@@ -36,7 +36,7 @@ type DspRequest struct {
 	SspName     string `json:"ssp_name"`
 	RequestTime string `json:"request_time"`
 	RequestID   string `json:"request_id"`
-	AppID       string `json:"app_id"`
+	AppID       int `json:"app_id"`
 }
 
 // WinNotice is convert to json
@@ -55,7 +55,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		SspName:     "hoge",
 		RequestTime: "time",
 		RequestID:   id.String(),
-		AppID:       id.String(),
+		AppID:       123,
 	}
 
 	// DSPに対してリクエスを行う
