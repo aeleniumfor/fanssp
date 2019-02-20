@@ -107,8 +107,7 @@ func request(dsprequest DspRequest, url string) []byte {
 }
 
 func winrequest(win WinNotice) {
-	url := "http://localhost:8085/win"
-
+	url := "http://localhost:8080/win"
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
