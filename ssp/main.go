@@ -111,6 +111,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func request(dsprequest DspRequest, url string) []byte {
+
+	fmt.Println(url)
 	json, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
