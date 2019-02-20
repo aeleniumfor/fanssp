@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"sort"
@@ -69,6 +69,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}(i)
 	}
 
+	
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
 		data := <-ch
@@ -109,6 +110,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
+
+	time.Sleep(time.Duration(10) * time.Millisecond)
 	fmt.Fprintf(w, outjson)
 }
 
