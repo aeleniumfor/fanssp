@@ -67,19 +67,39 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
-		json.Unmarshal(<-ch, &dsp)
+		data := <- ch
+		if len(data) != 0 {
+			json.Unmarshal(data, &dsp)	
+			dspres = append(dspres, dsp)
+			
+		}
+	}
+	if len(dspres) == 0 {
+		// dspのレスポンスが全てなかった場合
+		dsp := DspResponse{
+			RequestID: id.String(),
+			URL:       "http://自社広告.コム:8080/ごめんね",
+			Price:     0,
+		}
 		dspres = append(dspres, dsp)
-	}
-	// ソートするやつ 数値以外が来たら終わる
-	sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
+	} else if len(dspres) == 1 {
+		// レスポンスが1つの場合
+		win := WinNotice{
+			RequestID: id.String(),
+			Price:     1,
+		}
+		winrequest(win, HostArray[0])
 
-	// とりあえず一つに対して送る処理
-	win := WinNotice{
-		RequestID: id.String(),
-		Price:     dspres[1].Price,
+	} else {
+		// ソートするやつ 数値以外が来たら終わる
+		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
+		// とりあえず一つに対して送る処理
+		win := WinNotice{
+			RequestID: id.String(),
+			Price:     dspres[1].Price,
+		}
+		winrequest(win, HostArray[0])
 	}
-
-	winrequest(win)
 
 	sspjson := SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
@@ -97,17 +117,17 @@ func request(dsprequest DspRequest, url string) []byte {
 	)
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
+	res, _ := client.Do(req)
+
+	if res == nil {
+		return []byte{}
 	}
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎
 	return body
 }
 
-func winrequest(win WinNotice) {
-	url := "http://localhost:8080/win"
+func winrequest(win WinNotice, url string) {
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
@@ -118,7 +138,7 @@ func winrequest(win WinNotice) {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("にゃーん")
 	}
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()
