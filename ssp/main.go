@@ -67,13 +67,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
-		if len(<-ch) != 0 {
-			json.Unmarshal(<-ch, &dsp)
+		data := <- ch
+		if len(data) != 0 {
+			json.Unmarshal(data, &dsp)	
 			dspres = append(dspres, dsp)
+			
 		}
-
 	}
-
 	if len(dspres) == 0 {
 		// dspのレスポンスが全てなかった場合
 		dsp := DspResponse{
@@ -108,16 +108,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, outjson)
 }
 
-func noneDspResponse(dspres []DspResponse, id string) []DspResponse {
-	// 空のものを入れておく
-	dspres[0] = DspResponse{
-		RequestID: id,
-		URL:       "",
-		Price:     0,
-	}
-	return dspres
-}
-
 func request(dsprequest DspRequest, url string) []byte {
 	json, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
@@ -127,7 +117,6 @@ func request(dsprequest DspRequest, url string) []byte {
 	)
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
-
 	res, _ := client.Do(req)
 
 	if res == nil {
