@@ -112,6 +112,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func request(dsprequest DspRequest, url string) []byte {
 	json, _ := json.Marshal(dsprequest)
+	fmt.Println(json)
 	req, _ := http.NewRequest(
 		"POST",
 		url,
@@ -120,7 +121,6 @@ func request(dsprequest DspRequest, url string) []byte {
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, _ := client.Do(req)
-	fmt.Println(res)
 
 	if res == nil {
 		return []byte{}
