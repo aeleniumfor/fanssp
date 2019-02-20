@@ -59,7 +59,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// DSPに対してリクエスを行う
-	ch := make(chan []byte, 5)
+	ch := make(chan []byte, count)
 	for i := 0; i < count; i++ {
 		go func(i int) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
