@@ -48,19 +48,19 @@ type WinNotice struct {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	count := len(HostArray) // hostの数に依存する
-	var dspres []DspResponse
+	dspres := []DspResponse{}
 	id, _ := uuid.NewUUID()
+	ids := id.String()
 
 	dsprequest := DspRequest{
 		SspName:     "hoge",
 		RequestTime: "time",
-		RequestID:   id.String(),
+		RequestID:   ids,
 		AppID:       123,
 	}
 
 	// DSPに対してリクエスを行う
 	ch := make(chan []byte, count)
-
 	for i := 0; i < count; i++ {
 		go func(i int) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
@@ -81,7 +81,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if len(dspres) == 0 {
 		// dspのレスポンスが全てなかった場合
 		dsp := DspResponse{
-			RequestID: id.String(),
+			RequestID: ids,
 			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
 		}
@@ -89,7 +89,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	} else if len(dspres) == 1 {
 		// レスポンスが1つの場合
 		win := WinNotice{
-			RequestID: id.String(),
+			RequestID: ids,
 			Price:     1,
 		}
 		winrequest(win, HostArray[0])
@@ -99,7 +99,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
 		// とりあえず一つに対して送る処理
 		win := WinNotice{
-			RequestID: id.String(),
+			RequestID: ids,
 			Price:     dspres[1].Price,
 		}
 		winrequest(win, HostArray[0])
