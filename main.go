@@ -1,9 +1,9 @@
 package main
 
 import (
-	"strings"
-	"os"
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main() {
