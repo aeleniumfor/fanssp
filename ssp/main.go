@@ -74,23 +74,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// ここから分岐する
 	if len(dspres) == 0 {
 		// dspのレスポンスが全てなかった場合
-		noneDspResponse(dspres)
+		dspres[0] = DspResponse{
+			RequestID: id.String(),
+			URL:       "http://localhost:8080/ごめんね",
+			Price:     0,
+		}
+	} else {
+		// ソートするやつ 数値以外が来たら終わる
+		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
+		// とりあえず一つに対して送る処理
+		win := WinNotice{
+			RequestID: id.String(),
+			Price:     dspres[1].Price,
+		}
+		winrequest(win, HostArray[0])
 	}
-
-	// ソートするやつ 数値以外が来たら終わる
-	sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
-
-	// とりあえず一つに対して送る処理
-	win := WinNotice{
-		RequestID: id.String(),
-		Price:     dspres[1].Price,
-	}
-
-	winrequest(win, HostArray[0])
-	// ここまで分岐するん
 
 	sspjson := SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
