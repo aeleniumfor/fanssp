@@ -4,3 +4,7 @@ Gopkg.*
 vendor
 
 test.txt
+jq
+vegeta.sh
+*.html
+*.bin

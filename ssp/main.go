@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -143,7 +144,7 @@ func winrequest(win WinNotice, url string) {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println("にゃーん")
+		log.Println("にゃーん")
 	}
 	body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()
