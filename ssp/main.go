@@ -74,8 +74,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-
 	// ここから分岐する
+	if len(dspres) == 0 {
+		// dspのレスポンスが全てなかった場合
+		noneDspResponse(dspres)
+	}
+
 	// ソートするやつ 数値以外が来たら終わる
 	sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
 
@@ -93,6 +97,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, outjson)
+}
+
+func noneDspResponse(dspres []DspResponse, id string) []DspResponse {
+	// 空のものを入れておく
+	dspres[0] = DspResponse{
+		RequestID: id,
+		URL:       "",
+		Price:     0,
+	}
+	return dspres
 }
 
 func request(dsprequest DspRequest, url string) []byte {
