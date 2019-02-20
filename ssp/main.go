@@ -159,6 +159,6 @@ func now() string {
 func main() {
 	fmt.Println("server start")
 	fmt.Println(HostArray)
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/req", handler)
 	http.ListenAndServe(":8888", nil)
 }
