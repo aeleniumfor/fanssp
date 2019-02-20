@@ -119,9 +119,8 @@ func request(dsprequest DspRequest, url string) []byte {
 	)
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
-	res, _ := client.Do(req)
-	fmt.Println(res)
-
+	res, err := client.Do(req)
+	fmt.Println(err)
 	if res == nil {
 		return []byte{}
 	}
