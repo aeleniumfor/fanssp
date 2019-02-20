@@ -36,7 +36,7 @@ type DspRequest struct {
 	SspName     string `json:"ssp_name"`
 	RequestTime string `json:"request_time"`
 	RequestID   string `json:"request_id"`
-	AppID       int `json:"app_id"`
+	AppID       int    `json:"app_id"`
 }
 
 // WinNotice is convert to json
@@ -64,7 +64,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < count; i++ {
 		go func(i int) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
-			
+
 			ch <- request(dsprequest, HostArray[i])
 		}(i)
 	}
@@ -119,10 +119,10 @@ func request(dsprequest DspRequest, url string) []byte {
 		url,
 		bytes.NewBuffer([]byte(json)),
 	)
-	req.Header.Set("Content-type","application/json")
+	req.Header.Set("Content-type", "application/json")
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
-	res, err := client.Do(req)
+	res, _ := client.Do(req)
 	if res == nil {
 		return []byte{}
 	}
@@ -138,8 +138,7 @@ func winrequest(win WinNotice, url string) {
 		url,
 		bytes.NewBuffer([]byte(json)),
 	)
-	req.Header.Set("Content-type","application/json")
-
+	req.Header.Set("Content-type", "application/json")
 
 	client := &http.Client{}
 	res, err := client.Do(req)
