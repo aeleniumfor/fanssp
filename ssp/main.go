@@ -62,7 +62,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	ch := make(chan []byte, count)
 
 	for i := 0; i < count; i++ {
-		fmt.Println(HostArray[i])
 		go func(i int) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
 			
@@ -114,8 +113,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func request(dsprequest DspRequest, url string) []byte {
-
-	fmt.Println(url)
 	json, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
@@ -126,7 +123,6 @@ func request(dsprequest DspRequest, url string) []byte {
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
-	fmt.Println(err)
 	if res == nil {
 		return []byte{}
 	}
