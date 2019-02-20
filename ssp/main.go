@@ -96,7 +96,7 @@ func request(dsprequest DspRequest, url string) []byte {
 		bytes.NewBuffer([]byte(string(json))),
 	)
 
-	client := &http.Client{Timeout: time.Duration(10) * time.Millisecond}
+	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
