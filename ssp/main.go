@@ -151,6 +151,7 @@ func winrequest(win WinNotice, url string) {
 
 func main() {
 	fmt.Println("server start")
+	fmt.Println(HostArray)
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8081", nil)
 }
