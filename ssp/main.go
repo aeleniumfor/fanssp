@@ -117,6 +117,7 @@ func request(dsprequest DspRequest, url string) []byte {
 		url,
 		bytes.NewBuffer([]byte(json)),
 	)
+	req.Header.Set("Content-Type","application/json")
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
@@ -134,8 +135,10 @@ func winrequest(win WinNotice, url string) {
 	req, _ := http.NewRequest(
 		"POST",
 		url,
-		bytes.NewBuffer([]byte(string(json))),
+		bytes.NewBuffer([]byte(json)),
 	)
+	req.Header.Set("Content-Type","application/json")
+
 
 	client := &http.Client{}
 	res, err := client.Do(req)
