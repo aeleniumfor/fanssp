@@ -36,6 +36,7 @@ type DspRequest struct {
 	SspName     string `json:"ssp_name"`
 	RequestTime string `json:"request_time"`
 	RequestID   string `json:"request_id"`
+	AppID       string `json:"app_id"`
 }
 
 // WinNotice is convert to json
@@ -54,6 +55,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		SspName:     "hoge",
 		RequestTime: "time",
 		RequestID:   id.String(),
+		AppID:       id.String(),
 	}
 
 	// DSPに対してリクエスを行う
@@ -67,11 +69,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < count; i++ {
 		dsp := DspResponse{}
-		data := <- ch
+		data := <-ch
 		if len(data) != 0 {
-			json.Unmarshal(data, &dsp)	
+			json.Unmarshal(data, &dsp)
 			dspres = append(dspres, dsp)
-			
+
 		}
 	}
 	if len(dspres) == 0 {
@@ -118,6 +120,7 @@ func request(dsprequest DspRequest, url string) []byte {
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, _ := client.Do(req)
+	fmt.Println(res)
 
 	if res == nil {
 		return []byte{}
