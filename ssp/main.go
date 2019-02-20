@@ -9,6 +9,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -95,7 +96,7 @@ func request(dsprequest DspRequest, url string) []byte {
 		bytes.NewBuffer([]byte(string(json))),
 	)
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
@@ -106,8 +107,7 @@ func request(dsprequest DspRequest, url string) []byte {
 }
 
 func winrequest(win WinNotice) {
-	url := "http://localhost:8085/win"
-
+	url := "http://localhost:8080/win"
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",

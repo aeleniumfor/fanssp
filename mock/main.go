@@ -32,10 +32,12 @@ type WinNotice struct {
 
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	
 	data, _ := ioutil.ReadAll(r.Body)
 	sspReq := DspRequest{}
 	json.Unmarshal(data, &sspReq)
 	price := randTOint()
+	//time.Sleep(time.Duration(price) * time.Millisecond)
 	dspjson := DspResponse{}
 	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com/" + strconv.Itoa(price)
