@@ -22,9 +22,14 @@ var hosts string = os.Getenv("DSPHOSTS")
 var HostArray []string = strings.Split(hosts, " ")
 
 
+func er(e error){
+	if e != nil {
+		log.Fatal(e)
+	}
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	count := len(HostArray) // hostの数に依存する
-	dspres := []common.DspResponse{}
 	id, _ := uuid.NewUUID()
 	ids := id.String()
 
@@ -35,9 +40,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		AppID:       123,
 	}
 
+	auction := []common.PriceInfo{}
 	// DSPに対してリクエスを行う
-	ch := make(chan []byte, count)
-	for _ ,host := range HostArray {
+	ch := make(chan common.PriceInfo, count)
+	for _, host := range HostArray {
 		go func(host string) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
 
@@ -46,11 +52,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for range HostArray {
-		dsp := common.DspResponse{}
 		data := <-ch
-		if len(data) != 0 {
-			json.Unmarshal(data, &dsp)
-			dspres = append(dspres, dsp)
+		if &data != nil {
+			auction = append(auction, data)
 
 		}
 	}
@@ -88,23 +92,35 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest common.DspRequest, url string) []byte {
-	json, _ := json.Marshal(dsprequest)
+func request(dsprequest common.DspRequest, url string) (common.PriceInfo, bool) {
+	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
 		url,
-		bytes.NewBuffer([]byte(json)),
+		bytes.NewBuffer([]byte(reqjson)),
 	)
 	req.Header.Set("Content-type", "application/json")
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
-	res, _ := client.Do(req)
-	if res == nil {
-		return []byte{}
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
 	}
-	body, _ := ioutil.ReadAll(res.Body)
+
+	if res == nil {
+		return common.PriceInfo{}, false
+	}
+
+	dsp := common.DspResponse{}
+	data, _ := ioutil.ReadAll(res.Body)
+	json.Unmarshal(data, &dsp)
 	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎
-	return body
+
+	priceinfo := common.PriceInfo{
+		DspHost:     url,
+		DspResponse: dsp,
+	}
+	return priceinfo, true
 }
 
 func winrequest(win common.WinNotice, url string) {
