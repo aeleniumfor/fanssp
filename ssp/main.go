@@ -68,11 +68,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		data, _ := ioutil.ReadAll(r.Body)
 		json.Unmarshal(data, &sdkreq)
-		log.Println(sdkreq)
-	}else{
+	} else {
 		sdkreq.AppID = 123
 	}
-	fmt.Println(sdkreq)
+
+	log.Println(r.Host, sdkreq)
 
 	count := len(HostArray) // hostの数に依存する
 	id, _ := uuid.NewUUID()
