@@ -69,7 +69,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}(host)
 	}
 
-	for i := 0; i < count; i++ {
+	for range HostArray {
 		dsp := DspResponse{}
 		data := <-ch
 		if len(data) != 0 {
