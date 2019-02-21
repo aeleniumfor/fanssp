@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fanssp/common"
 	"github.com/google/uuid"
 )
 
@@ -20,39 +21,14 @@ var hosts string = os.Getenv("DSPHOSTS")
 // HostArray is Split
 var HostArray []string = strings.Split(hosts, " ")
 
-// SspResponse is convert to json
-type SspResponse struct {
-	URL string `json:"url"`
-}
-
-// DspResponse is convert to json
-type DspResponse struct {
-	RequestID string `json:"request_id"`
-	URL       string `json:"url"`
-	Price     int    `json:"price"`
-}
-
-// DspRequest is convert to json
-type DspRequest struct {
-	SspName     string `json:"ssp_name"`
-	RequestTime string `json:"request_time"`
-	RequestID   string `json:"request_id"`
-	AppID       int    `json:"app_id"`
-}
-
-// WinNotice is convert to json
-type WinNotice struct {
-	RequestID string `json:"request_id"`
-	Price     int    `json:"price"`
-}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	count := len(HostArray) // hostの数に依存する
-	dspres := []DspResponse{}
+	dspres := []common.DspResponse{}
 	id, _ := uuid.NewUUID()
 	ids := id.String()
 
-	dsprequest := DspRequest{
+	dsprequest := common.DspRequest{
 		SspName:     "r_ryusei",
 		RequestTime: now(),
 		RequestID:   ids,
@@ -70,7 +46,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for range HostArray {
-		dsp := DspResponse{}
+		dsp := common.DspResponse{}
 		data := <-ch
 		if len(data) != 0 {
 			json.Unmarshal(data, &dsp)
@@ -80,7 +56,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(dspres) == 0 {
 		// dspのレスポンスが全てなかった場合
-		dsp := DspResponse{
+		dsp := common.DspResponse{
 			RequestID: ids,
 			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
@@ -88,7 +64,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		dspres = append(dspres, dsp)
 	} else if len(dspres) == 1 {
 		// レスポンスが1つの場合
-		win := WinNotice{
+		win := common.WinNotice{
 			RequestID: ids,
 			Price:     1,
 		}
@@ -98,21 +74,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// ソートするやつ 数値以外が来たら終わる
 		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
 		// とりあえず一つに対して送る処理
-		win := WinNotice{
+		win := common.WinNotice{
 			RequestID: ids,
 			Price:     dspres[1].Price,
 		}
 		winrequest(win, HostArray[0])
 	}
 
-	sspjson := SspResponse{dspres[0].URL}
+	sspjson := common.SspResponse{dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest, url string) []byte {
+func request(dsprequest common.DspRequest, url string) []byte {
 	json, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
@@ -131,7 +107,7 @@ func request(dsprequest DspRequest, url string) []byte {
 	return body
 }
 
-func winrequest(win WinNotice, url string) {
+func winrequest(win common.WinNotice, url string) {
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
