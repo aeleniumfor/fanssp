@@ -1,5 +1,8 @@
 FROM golang:1.11-alpine3.7 as build
-COPY ./ /go/src/github.com/fanssp
+ARG PROJECTPATH
+COPY ${PROJECTPATH}/ssp /go/src/github.com/fanssp/ssp
+COPY ${PROJECTPATH}/common /go/src/github.com/fanssp/common
+
 WORKDIR /go/src/github.com/fanssp
 RUN apk add git
 RUN go get github.com/google/uuid
