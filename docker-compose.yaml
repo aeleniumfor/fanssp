@@ -3,9 +3,12 @@ services:
     mock_dsp:
         build: ./mock/
         restart: always
-    
+
     ssp:
-        build: ./ssp/
+        build: 
+            context: ./ssp/
+            args:
+                PROJECTPATH: ${PWD}
         restart: always
         network_mode: host
         environment:
