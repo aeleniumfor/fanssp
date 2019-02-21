@@ -183,7 +183,7 @@ func winrequest(win WinNotice, url string) {
 	req.Header.Set("Content-type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
-		log.Println("にゃーん")
+		log.Println("にゃーん",err)
 	}
 	
 	// body, _ := ioutil.ReadAll(res.Body)
