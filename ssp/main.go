@@ -74,9 +74,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		sdkreq.AppID = 123
 	}
-
-	log.Println(r.RequestURI, r.Method)
-
 	count := len(HostArray) // hostの数に依存する
 	id, _ := uuid.NewUUID()
 	ids := id.String()
