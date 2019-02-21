@@ -26,6 +26,8 @@ type WinNotice struct {
 	Price     int    `json:"price"`
 }
 
+
+// PriceInfo is convert to json
 type PriceInfo struct {
 	DspHost     string
 	DspResponse DspResponse
