@@ -60,10 +60,9 @@ var HostArray []string = strings.Split(hosts, " ")
 var client = &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 var clientWin = &http.Client{Timeout: time.Duration(1000) * time.Millisecond}
 
-
 func er(e error) {
 	if e != nil {
-		log.Println("Faile",e)
+		log.Println("Faile", e)
 	}
 }
 
@@ -157,7 +156,7 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 	req.Header.Set("Content-type", "application/json")
 
 	res, err := clientWin.Do(req)
-	
+
 	if res == nil || err != nil {
 		//変に値が帰ってきても困るので
 		return PriceInfo{Status: false}
@@ -185,9 +184,10 @@ func winrequest(win WinNotice, url string) {
 	req.Header.Set("Content-type", "application/json")
 	res, err := clientWin.Do(req)
 	if err != nil {
-		log.Println("にゃーん",err)
+		log.Println("にゃーん", err)
+		return
 	}
-	
+
 	// body, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	//fmt.Println(string(body))
@@ -203,5 +203,5 @@ func main() {
 	fmt.Println("server start")
 	fmt.Println(HostArray)
 	http.HandleFunc("/req", handler)
-	log.Fatalln(http.ListenAndServe(":8888",nil))
+	log.Fatalln(http.ListenAndServe(":8888", nil))
 }
