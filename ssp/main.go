@@ -85,6 +85,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			RequestID: ids,
 			Price:     auction[1].DspResponse.Price,
 		}
+
+		// TODO これを修正したい
 		winrequest(win, HostArray[0])
 	}
 
