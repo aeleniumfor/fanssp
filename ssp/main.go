@@ -58,7 +58,7 @@ var HostArray []string = strings.Split(hosts, " ")
 
 func er(e error) {
 	if e != nil {
-		log.Fatal(e)
+		log.Fatalln(e)
 	}
 }
 
