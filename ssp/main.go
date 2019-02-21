@@ -65,7 +65,7 @@ func er(e error) {
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	sdkreq := SdkRequest{}
-	if r.Method != "POST" {
+	if r.Method == "POST" {
 		data, _ := ioutil.ReadAll(r.Body)
 		json.Unmarshal(data, &sdkreq)
 	} else {
