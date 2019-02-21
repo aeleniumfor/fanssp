@@ -21,8 +21,7 @@ var hosts string = os.Getenv("DSPHOSTS")
 // HostArray is Split
 var HostArray []string = strings.Split(hosts, " ")
 
-
-func er(e error){
+func er(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}
@@ -53,20 +52,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for range HostArray {
 		data := <-ch
-		if &data != nil {
+		if data.Status == true {
+			// レスポンスがきちんと帰ってきてる時
 			auction = append(auction, data)
 
 		}
 	}
-	if len(dspres) == 0 {
+	if len(auction) == 0 {
 		// dspのレスポンスが全てなかった場合
 		dsp := common.DspResponse{
 			RequestID: ids,
 			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
 		}
-		dspres = append(dspres, dsp)
-	} else if len(dspres) == 1 {
+		data := common.PriceInfo{
+			DspResponse: dsp,
+		}
+		auction = append(auction, data)
+	} else if len(auction) == 1 {
 		// レスポンスが1つの場合
 		win := common.WinNotice{
 			RequestID: ids,
@@ -76,23 +79,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
-		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
+		sort.Slice(auction, func(i, j int) bool { return auction[i].DspResponse.Price > auction[j].DspResponse.Price })
 		// とりあえず一つに対して送る処理
 		win := common.WinNotice{
 			RequestID: ids,
-			Price:     dspres[1].Price,
+			Price:     auction[1].DspResponse.Price,
 		}
 		winrequest(win, HostArray[0])
 	}
 
-	sspjson := common.SspResponse{URL: dspres[0].URL}
+	sspjson := common.SspResponse{URL: auction[0].DspResponse.URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest common.DspRequest, url string) (common.PriceInfo, bool) {
+func request(dsprequest common.DspRequest, url string) common.PriceInfo {
 	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
@@ -103,14 +106,11 @@ func request(dsprequest common.DspRequest, url string) (common.PriceInfo, bool) 
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	if res == nil || err != nil {
 		//変に値が帰ってきても困るので
-		
-		return common.PriceInfo{}, false
+		er(err)
+		return common.PriceInfo{Status: false}
 	}
 
 	dsp := common.DspResponse{}
@@ -121,8 +121,9 @@ func request(dsprequest common.DspRequest, url string) (common.PriceInfo, bool) 
 	priceinfo := common.PriceInfo{
 		DspHost:     url,
 		DspResponse: dsp,
+		Status:      true,
 	}
-	return priceinfo, true
+	return priceinfo
 }
 
 func winrequest(win common.WinNotice, url string) {
