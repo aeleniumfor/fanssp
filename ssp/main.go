@@ -53,7 +53,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	ids := id.String()
 
 	dsprequest := DspRequest{
-		SspName:     "hoge",
+		SspName:     "r_ryusei",
 		RequestTime: now(),
 		RequestID:   ids,
 		AppID:       123,
