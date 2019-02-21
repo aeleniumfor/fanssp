@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,10 +12,7 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/google/uuid"
 )
-
-
 
 // SspResponse is convert to json
 type SspResponse struct {
@@ -49,6 +47,9 @@ type PriceInfo struct {
 	Status      bool
 }
 
+type SdkRequest struct {
+	AppID int `json:"app_id"`
+}
 
 var hosts string = os.Getenv("DSPHOSTS")
 
@@ -62,6 +63,16 @@ func er(e error) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+
+	sdkreq := SdkRequest{}
+	if r.Method != "POST" {
+		data, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(data, &sdkreq)
+		log.Panicln(sdkreq)
+	}else{
+		sdkreq.AppID = 123
+	}
+
 	count := len(HostArray) // hostの数に依存する
 	id, _ := uuid.NewUUID()
 	ids := id.String()
@@ -70,7 +81,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		SspName:     "r_ryusei",
 		RequestTime: now(),
 		RequestID:   ids,
-		AppID:       123,
+		AppID:       sdkreq.AppID,
 	}
 
 	auction := []PriceInfo{}
