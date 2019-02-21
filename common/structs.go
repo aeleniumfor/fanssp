@@ -1,6 +1,5 @@
 package common
 
-
 // SspResponse is convert to json
 type SspResponse struct {
 	URL string `json:"url"`
@@ -25,4 +24,9 @@ type DspRequest struct {
 type WinNotice struct {
 	RequestID string `json:"request_id"`
 	Price     int    `json:"price"`
+}
+
+type PriceInfo struct {
+	DspHost     string
+	DspResponse DspResponse
 }
