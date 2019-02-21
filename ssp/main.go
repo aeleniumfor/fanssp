@@ -181,8 +181,6 @@ func winrequest(win WinNotice, url string) {
 		bytes.NewBuffer([]byte(json)),
 	)
 	req.Header.Set("Content-type", "application/json")
-
-	client := &http.Client{Timeout: time.Duration(1) * time.Second}
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("にゃーん")
