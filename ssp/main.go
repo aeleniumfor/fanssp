@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fanssp/common"
 	"github.com/google/uuid"
 )
 
@@ -20,48 +21,28 @@ var hosts string = os.Getenv("DSPHOSTS")
 // HostArray is Split
 var HostArray []string = strings.Split(hosts, " ")
 
-// SspResponse is convert to json
-type SspResponse struct {
-	URL string `json:"url"`
-}
-
-// DspResponse is convert to json
-type DspResponse struct {
-	RequestID string `json:"request_id"`
-	URL       string `json:"url"`
-	Price     int    `json:"price"`
-}
-
-// DspRequest is convert to json
-type DspRequest struct {
-	SspName     string `json:"ssp_name"`
-	RequestTime string `json:"request_time"`
-	RequestID   string `json:"request_id"`
-	AppID       int    `json:"app_id"`
-}
-
-// WinNotice is convert to json
-type WinNotice struct {
-	RequestID string `json:"request_id"`
-	Price     int    `json:"price"`
+func er(e error) {
+	if e != nil {
+		log.Fatal(e)
+	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	count := len(HostArray) // hostの数に依存する
-	dspres := []DspResponse{}
 	id, _ := uuid.NewUUID()
 	ids := id.String()
 
-	dsprequest := DspRequest{
+	dsprequest := common.DspRequest{
 		SspName:     "r_ryusei",
 		RequestTime: now(),
 		RequestID:   ids,
 		AppID:       123,
 	}
 
+	auction := []common.PriceInfo{}
 	// DSPに対してリクエスを行う
-	ch := make(chan []byte, count)
-	for _ ,host := range HostArray {
+	ch := make(chan common.PriceInfo, count)
+	for _, host := range HostArray {
 		go func(host string) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
 
@@ -69,26 +50,28 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}(host)
 	}
 
-	for i := 0; i < count; i++ {
-		dsp := DspResponse{}
+	for range HostArray {
 		data := <-ch
-		if len(data) != 0 {
-			json.Unmarshal(data, &dsp)
-			dspres = append(dspres, dsp)
+		if data.Status == true {
+			// レスポンスがきちんと帰ってきてる時
+			auction = append(auction, data)
 
 		}
 	}
-	if len(dspres) == 0 {
+	if len(auction) == 0 {
 		// dspのレスポンスが全てなかった場合
-		dsp := DspResponse{
+		dsp := common.DspResponse{
 			RequestID: ids,
 			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
 		}
-		dspres = append(dspres, dsp)
-	} else if len(dspres) == 1 {
+		data := common.PriceInfo{
+			DspResponse: dsp,
+		}
+		auction = append(auction, data)
+	} else if len(auction) == 1 {
 		// レスポンスが1つの場合
-		win := WinNotice{
+		win := common.WinNotice{
 			RequestID: ids,
 			Price:     1,
 		}
@@ -96,42 +79,56 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
-		sort.Slice(dspres, func(i, j int) bool { return dspres[i].Price > dspres[j].Price })
+		sort.Slice(auction, func(i, j int) bool { return auction[i].DspResponse.Price > auction[j].DspResponse.Price })
 		// とりあえず一つに対して送る処理
-		win := WinNotice{
+		win := common.WinNotice{
 			RequestID: ids,
-			Price:     dspres[1].Price,
+			Price:     auction[1].DspResponse.Price,
 		}
+
+		// TODO これを修正したい
 		winrequest(win, HostArray[0])
 	}
 
-	sspjson := SspResponse{dspres[0].URL}
+	sspjson := common.SspResponse{URL: auction[0].DspResponse.URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest, url string) []byte {
-	json, _ := json.Marshal(dsprequest)
+func request(dsprequest common.DspRequest, url string) common.PriceInfo {
+	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
 		url,
-		bytes.NewBuffer([]byte(json)),
+		bytes.NewBuffer([]byte(reqjson)),
 	)
 	req.Header.Set("Content-type", "application/json")
 
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
-	res, _ := client.Do(req)
-	if res == nil {
-		return []byte{}
+	res, err := client.Do(req)
+
+	if res == nil || err != nil {
+		//変に値が帰ってきても困るので
+		er(err)
+		return common.PriceInfo{Status: false}
 	}
-	body, _ := ioutil.ReadAll(res.Body)
+
+	dsp := common.DspResponse{}
+	data, _ := ioutil.ReadAll(res.Body)
+	json.Unmarshal(data, &dsp)
 	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎
-	return body
+
+	priceinfo := common.PriceInfo{
+		DspHost:     url,
+		DspResponse: dsp,
+		Status:      true,
+	}
+	return priceinfo
 }
 
-func winrequest(win WinNotice, url string) {
+func winrequest(win common.WinNotice, url string) {
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
