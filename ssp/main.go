@@ -203,5 +203,5 @@ func main() {
 	fmt.Println("server start")
 	fmt.Println(HostArray)
 	http.HandleFunc("/req", handler)
-	http.ListenAndServe(":8888",nil)
+	log.Fatalln(http.ListenAndServe(":8888",nil))
 }
