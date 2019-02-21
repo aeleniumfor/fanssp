@@ -59,7 +59,7 @@ var HostArray []string = strings.Split(hosts, " ")
 
 func er(e error) {
 	if e != nil {
-		log.Fatalln("Faile",e)
+		log.Println("Faile",e)
 	}
 }
 
@@ -162,7 +162,6 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 		er(err)
 		return PriceInfo{Status: false}
 	}
-
 	dsp := DspResponse{}
 	data, _ := ioutil.ReadAll(res.Body)
 	json.Unmarshal(data, &dsp)
