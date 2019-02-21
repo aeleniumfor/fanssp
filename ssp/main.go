@@ -119,11 +119,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		auction = append(auction, data)
 	} else if len(auction) == 1 {
 		// レスポンスが1つの場合
-		win := WinNotice{
-			RequestID: ids,
-			Price:     1,
-		}
-		winrequest(win, HostArray[0])
+		// win := WinNotice{
+		// 	RequestID: ids,
+		// 	Price:     1,
+		// }
+		//winrequest(win, HostArray[0])
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
