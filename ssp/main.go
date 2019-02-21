@@ -81,7 +81,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		winrequest(win, HostArray[0])
 	}
 
-	sspjson := common.SspResponse{dspres[0].URL}
+	sspjson := common.SspResponse{URL: dspres[0].URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
