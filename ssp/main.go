@@ -52,10 +52,12 @@ type SdkRequest struct {
 	AppID int `json:"app_id"`
 }
 
-var hosts string = os.Getenv("DSPHOSTS")
+var hosts = os.Getenv("DSPHOSTS")
 
 // HostArray is Split
 var HostArray []string = strings.Split(hosts, " ")
+
+var client = &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 
 func er(e error) {
 	if e != nil {
@@ -64,7 +66,6 @@ func er(e error) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-
 	sdkreq := SdkRequest{}
 	if r.Method == "POST" {
 		data, _ := ioutil.ReadAll(r.Body)
@@ -153,13 +154,10 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 	)
 	req.Header.Set("Content-type", "application/json")
 
-	fmt.Println(url)
-	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
 	
 	if res == nil || err != nil {
 		//変に値が帰ってきても困るので
-		er(err)
 		return PriceInfo{Status: false}
 	}
 	dsp := DspResponse{}
@@ -205,5 +203,5 @@ func main() {
 	fmt.Println("server start")
 	fmt.Println(HostArray)
 	http.HandleFunc("/req", handler)
-	http.ListenAndServe(":8888", nil)
+	http.ListenAndServe(":8888",nil)
 }
