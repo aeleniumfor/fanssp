@@ -1,14 +1,11 @@
 version: "3"
 services:
     mock_dsp:
-        build: ./mock/
+        build: ./mock/ 
         restart: always
 
     ssp:
-        build: 
-            context: ./ssp/
-            args:
-                PROJECTPATH: ${PWD}
+        build: ./ssp/
         restart: always
         network_mode: host
         environment:

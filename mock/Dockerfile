@@ -1,5 +1,7 @@
 FROM golang:1.11-alpine3.7 as build
-COPY ./ ./src/mock
+
+COPY ./ /go/src/mock
+
 WORKDIR /go/src/mock
 RUN apk add git
 RUN go build main.go
