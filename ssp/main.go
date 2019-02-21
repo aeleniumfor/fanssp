@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // SspResponse is convert to json
@@ -58,7 +59,7 @@ var HostArray []string = strings.Split(hosts, " ")
 
 func er(e error) {
 	if e != nil {
-		log.Fatalln(e)
+		log.Fatalln("Faile",e)
 	}
 }
 
