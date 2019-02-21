@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -197,8 +198,21 @@ func now() string {
 }
 
 func main() {
-	fmt.Println("server start")
+	fmt.Println("unix server start")
 	fmt.Println(HostArray)
-	http.HandleFunc("/req", handler)
-	log.Fatalln(http.ListenAndServe(":8888", nil))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/req", handler)
+	li, err := net.Listen("unix","/var/run/go/go.socket")
+	if err != nil {
+		panic(err)
+	}
+
+	err = http.Serve(li,mux)
+	if err != nil {
+		panic(err)
+	}
+	li.Close()
+
+	//http.HandleFunc("/req", handler)	
+	// log.Fatalln(http.ListenAndServe(":8888", nil))
 }
