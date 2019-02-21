@@ -72,7 +72,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		sdkreq.AppID = 123
 	}
 
-	log.Println(r.Host, sdkreq)
+	log.Println(r.RequestURI, r.Method)
 
 	count := len(HostArray) // hostの数に依存する
 	id, _ := uuid.NewUUID()
