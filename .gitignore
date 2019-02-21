@@ -8,3 +8,4 @@ jq
 vegeta.sh
 *.html
 *.bin
+tmp
