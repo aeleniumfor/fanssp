@@ -156,6 +156,8 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 	client := &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 	res, err := client.Do(req)
 
+	testdata, _ := ioutil.ReadAll(res.Body)
+	fmt.Println(string(testdata))
 	if res == nil || err != nil {
 		//変に値が帰ってきても困るので
 		er(err)
