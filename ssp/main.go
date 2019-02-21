@@ -183,7 +183,7 @@ func winrequest(win WinNotice, url string) {
 		bytes.NewBuffer([]byte(json)),
 	)
 	req.Header.Set("Content-type", "application/json")
-	res, err := client.Do(req)
+	res, err := clientWin.Do(req)
 	if err != nil {
 		log.Println("にゃーん",err)
 	}
