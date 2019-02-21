@@ -107,7 +107,9 @@ func request(dsprequest common.DspRequest, url string) (common.PriceInfo, bool) 
 		log.Fatal(err)
 	}
 
-	if res == nil {
+	if res == nil || err != nil {
+		//変に値が帰ってきても困るので
+		
 		return common.PriceInfo{}, false
 	}
 
