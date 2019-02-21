@@ -68,7 +68,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		data, _ := ioutil.ReadAll(r.Body)
 		json.Unmarshal(data, &sdkreq)
-		log.Panicln(sdkreq)
+		log.Println(sdkreq)
 	}else{
 		sdkreq.AppID = 123
 	}
