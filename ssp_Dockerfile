@@ -1,5 +1,5 @@
 FROM golang:1.11-alpine3.7 as build
-COPY ./ /go/src/ssp
+COPY ./ssp /go/src/ssp
 
 WORKDIR /go/src/ssp
 RUN apk add git
