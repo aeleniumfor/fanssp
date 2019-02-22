@@ -16,12 +16,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// SspResponse is convert to json
+// SSPResponse is convert to json
 type SSPResponse struct {
 	URL string `json:"url"`
 }
 
-// DspResponse is convert to json
+// DSPResponse is convert to json
 type DSPResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
@@ -29,7 +29,7 @@ type DSPResponse struct {
 }
 
 // DspRequest is convert to json
-type DSPpRequest struct {
+type DSPRequest struct {
 	SspName     string `json:"ssp_name"`
 	RequestTime string `json:"request_time"`
 	RequestID   string `json:"request_id"`
@@ -45,7 +45,7 @@ type WinNotice struct {
 // PriceInfo is convert to json
 type PriceInfo struct {
 	DspHost     string
-	DspResponse DspResponse
+	DSPResponse DSPResponse
 	Status      bool
 }
 
@@ -109,13 +109,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(auction) == 0 {
 		// dspのレスポンスが全てなかった場合
-		dsp := DspResponse{
+		dsp := DSPResponse{
 			RequestID: ids,
 			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
 		}
 		data := PriceInfo{
-			DspResponse: dsp,
+			DSPResponse: dsp,
 		}
 		auction = append(auction, data)
 	} else if len(auction) == 1 {
@@ -128,18 +128,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
-		sort.Slice(auction, func(i, j int) bool { return auction[i].DspResponse.Price > auction[j].DspResponse.Price })
+		sort.Slice(auction, func(i, j int) bool { return auction[i].DSPResponse.Price > auction[j].DSPResponse.Price })
 		// とりあえず一つに対して送る処理
 		win := WinNotice{
 			RequestID: ids,
-			Price:     auction[1].DspResponse.Price,
+			Price:     auction[1].DSpResponse.Price,
 		}
 		
 		// TODO これを修正したい
 		SendWinRequest(win, auction[0].DspHost)
 	}
 
-	sspjson := SspResponse{URL: auction[0].DspResponse.URL}
+	sspjson := SSPResponse{URL: auction[0].DSPResponse.URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
@@ -147,7 +147,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 // SendRequest is dsp request
-func SendRequest(dsprequest DspRequest, url string) PriceInfo {
+func SendRequest(dsprequest DSPRequest, url string) PriceInfo {
 	url = url + "/req"
 	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
@@ -163,17 +163,17 @@ func SendRequest(dsprequest DspRequest, url string) PriceInfo {
 		//変に値が帰ってきても困るので
 		return PriceInfo{Status: false}
 	}
-	dsp := DspResponse{}
+	dsp := DSPResponse{}
 	data, _ := ioutil.ReadAll(res.Body)
 	json.Unmarshal(data, &dsp)
 	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎
 
 	priceinfo := PriceInfo{
 		DspHost:     url,
-		DspResponse: dsp,
+		DSPResponse: dsp,
 		Status:      true,
 	}
-	return priceinfo,
+	return priceinfo
 }
 
 // SendWinRequest is winnotice request
