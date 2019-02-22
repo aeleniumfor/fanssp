@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
+	"net/http/fcgi"
 	"os"
 	"sort"
 	"strings"
@@ -210,20 +210,26 @@ func now() string {
 
 func main() {
 	fmt.Println("unix server start")
-	fmt.Println(HostArray)
-	mux := http.NewServeMux()
-	mux.HandleFunc("/req", handler)
-	li, err := net.Listen("unix", "/var/run/go/go.socket")
-	if err != nil {
-		panic(err)
-	}
+	// fmt.Println(HostArray)
+	// mux := http.NewServeMux()
+	// mux.HandleFunc("/req", handler)
 
-	err = http.Serve(li, mux)
-	if err != nil {
-		panic(err)
-	}
-	li.Close()
+	// li, err := net.Listen("unix", "/var/run/go/go.socket")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// http.HandleFunc("/req", handler)
+	// err = http.Serve(li, mux)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// li.Close()
+
+	listen, err := net.Listen("unix", "/var/run/go/go.socket")
+	http.HandleFunc("/req", handler)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fcgi.Serve(listen, nil)
 	// log.Fatalln(http.ListenAndServe(":8888", nil))
 }
