@@ -3,11 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"net"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -124,7 +125,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			RequestID: ids,
 			Price:     1,
 		}
-		SendWinRequest(win, HostArray[0])
+
+		// 親の関数が終了しても後ろで動いていると信じたい
+		// ので特にまったりしましぇん
+		go SendWinRequest(win, HostArray[0])
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
@@ -134,9 +138,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			RequestID: ids,
 			Price:     auction[1].DSPResponse.Price,
 		}
-		
-		// TODO これを修正したい
-		SendWinRequest(win, auction[0].DspHost)
+
+		// 親の関数が終了しても後ろで動いていると信じたい
+		// ので特にまったりしましぇん
+		go SendWinRequest(win, auction[0].DspHost)
 	}
 
 	sspjson := SSPResponse{URL: auction[0].DSPResponse.URL}
@@ -208,12 +213,12 @@ func main() {
 	fmt.Println(HostArray)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/req", handler)
-	li, err := net.Listen("unix","/var/run/go/go.socket")
+	li, err := net.Listen("unix", "/var/run/go/go.socket")
 	if err != nil {
 		panic(err)
 	}
 
-	err = http.Serve(li,mux)
+	err = http.Serve(li, mux)
 	if err != nil {
 		panic(err)
 	}
