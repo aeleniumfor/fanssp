@@ -10,3 +10,5 @@ services:
         network_mode: host
         environment:
             - DSPHOSTS=${HOST1} ${HOST2}
+        volumes:
+            - ./ssp/default.conf:/etc/nginx/conf.d/default.conf

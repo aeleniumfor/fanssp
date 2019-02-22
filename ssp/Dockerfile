@@ -10,4 +10,6 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates nginx
 RUN mkdir -p /run/nginx
 WORKDIR /root/
+EXPOSE 80
 COPY --from=build /go/src/ssp/main /app/main
+CMD nginx -g "daemon off;"
