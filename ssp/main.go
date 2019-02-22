@@ -132,7 +132,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// とりあえず一つに対して送る処理
 		win := WinNotice{
 			RequestID: ids,
-			Price:     auction[1].DSpResponse.Price,
+			Price:     auction[1].DSPResponse.Price,
 		}
 		
 		// TODO これを修正したい
