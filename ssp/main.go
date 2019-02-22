@@ -94,7 +94,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		go func(host string) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
 
-			ch <- request(dsprequest, host)
+			ch <- SendRequest(dsprequest, host)
 		}(host)
 	}
 
@@ -123,7 +123,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			RequestID: ids,
 			Price:     1,
 		}
-		winrequest(win, HostArray[0])
+		SendWinRequest(win, HostArray[0])
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
@@ -135,7 +135,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 		
 		// TODO これを修正したい
-		winrequest(win, auction[0].DspHost)
+		SendWinRequest(win, auction[0].DspHost)
 	}
 
 	sspjson := SspResponse{URL: auction[0].DspResponse.URL}
