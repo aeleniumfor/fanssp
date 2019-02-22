@@ -145,7 +145,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest, url string) PriceInfo {
+// SendRequest is dsp request
+func SendRequest(dsprequest DspRequest, url string) PriceInfo {
 	url = url + "/req"
 	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
@@ -174,7 +175,8 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 	return priceinfo
 }
 
-func winrequest(win WinNotice, url string) {
+// SendWinRequest is winnotice request
+func SendWinRequest(win WinNotice, url string) {
 	url = url + "/win"
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
