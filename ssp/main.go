@@ -60,16 +60,17 @@ var HostArray []string = strings.Split(hosts, " ")
 var client = &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 var clientWin = &http.Client{Timeout: time.Duration(1000) * time.Millisecond}
 
-func er(e error) {
+func er(e error, errPoint string) {
 	if e != nil {
-		log.Println("Faile", e)
+		log.Println(errPoint, e)
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	sdkreq := SdkRequest{}
 	if r.Method == "POST" {
-		data, _ := ioutil.ReadAll(r.Body)
+		data, err := ioutil.ReadAll(r.Body)
+		er(err, "Post Request")
 		json.Unmarshal(data, &sdkreq)
 	} else {
 		sdkreq.AppID = 123
@@ -144,6 +145,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func request(dsprequest DspRequest, url string) PriceInfo {
+	url = url + "/req"
 	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
@@ -172,6 +174,7 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 }
 
 func winrequest(win WinNotice, url string) {
+	url = url + "/win"
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
@@ -212,6 +215,6 @@ func main() {
 	// }
 	// li.Close()
 
-	http.HandleFunc("/req", handler)	
+	http.HandleFunc("/req", handler)
 	log.Fatalln(http.ListenAndServe(":8888", nil))
 }
