@@ -17,19 +17,19 @@ import (
 )
 
 // SspResponse is convert to json
-type SspResponse struct {
+type SSPResponse struct {
 	URL string `json:"url"`
 }
 
 // DspResponse is convert to json
-type DspResponse struct {
+type DSPResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
 	Price     int    `json:"price"`
 }
 
 // DspRequest is convert to json
-type DspRequest struct {
+type DSPpRequest struct {
 	SspName     string `json:"ssp_name"`
 	RequestTime string `json:"request_time"`
 	RequestID   string `json:"request_id"`
@@ -49,7 +49,8 @@ type PriceInfo struct {
 	Status      bool
 }
 
-type SdkRequest struct {
+// SdkRequest is convert to json
+type SDKRequest struct {
 	AppID int `json:"app_id"`
 }
 
@@ -68,7 +69,7 @@ func er(e error, errPoint string) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	sdkreq := SdkRequest{}
+	sdkreq := SDKRequest{}
 	if r.Method == "POST" {
 		data, err := ioutil.ReadAll(r.Body)
 		er(err, "Post Request")
@@ -80,7 +81,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	id, _ := uuid.NewUUID()
 	ids := id.String()
 
-	dsprequest := DspRequest{
+	dsprequest := DSPRequest{
 		SspName:     "r_ryusei",
 		RequestTime: now(),
 		RequestID:   ids,
@@ -172,7 +173,7 @@ func SendRequest(dsprequest DspRequest, url string) PriceInfo {
 		DspResponse: dsp,
 		Status:      true,
 	}
-	return priceinfo
+	return priceinfo,
 }
 
 // SendWinRequest is winnotice request
