@@ -7,8 +7,10 @@ services:
     ssp:
         build: ./ssp/
         restart: always
-        network_mode: host
+        ports:
+            - 8083:80
         environment:
             - DSPHOSTS=${HOST1} ${HOST2}
         volumes:
             - ./ssp/default.conf:/etc/nginx/conf.d/default.conf
+
