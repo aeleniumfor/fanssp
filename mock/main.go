@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 
 	"encoding/json"
 	"fmt"
@@ -47,12 +48,11 @@ type PriceInfo struct {
 
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	
 	data, _ := ioutil.ReadAll(r.Body)
 	sspReq := DspRequest{}
 	json.Unmarshal(data, &sspReq)
 	price := randTOint()
-	time.Sleep(time.Duration(300) * time.Millisecond)
+	time.Sleep(time.Duration(0) * time.Millisecond)
 	dspjson := DspResponse{}
 	dspjson.RequestID = sspReq.RequestID
 	dspjson.URL = "http://hoge.com/" + strconv.Itoa(price)
@@ -67,7 +67,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func winNotice(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	out := `{"result": "ok"}`
-
+	log.Println(out)
 	fmt.Fprintf(w,out)
 }
 

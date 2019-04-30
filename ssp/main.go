@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"net/http/fcgi"
 	"os"
 	"sort"
 	"strings"
@@ -15,20 +17,20 @@ import (
 	"github.com/google/uuid"
 )
 
-// SspResponse is convert to json
-type SspResponse struct {
+// SSPResponse is convert to json
+type SSPResponse struct {
 	URL string `json:"url"`
 }
 
-// DspResponse is convert to json
-type DspResponse struct {
+// DSPResponse is convert to json
+type DSPResponse struct {
 	RequestID string `json:"request_id"`
 	URL       string `json:"url"`
 	Price     int    `json:"price"`
 }
 
 // DspRequest is convert to json
-type DspRequest struct {
+type DSPRequest struct {
 	SspName     string `json:"ssp_name"`
 	RequestTime string `json:"request_time"`
 	RequestID   string `json:"request_id"`
@@ -44,11 +46,12 @@ type WinNotice struct {
 // PriceInfo is convert to json
 type PriceInfo struct {
 	DspHost     string
-	DspResponse DspResponse
+	DSPResponse DSPResponse
 	Status      bool
 }
 
-type SdkRequest struct {
+// SdkRequest is convert to json
+type SDKRequest struct {
 	AppID int `json:"app_id"`
 }
 
@@ -60,16 +63,17 @@ var HostArray []string = strings.Split(hosts, " ")
 var client = &http.Client{Timeout: time.Duration(100) * time.Millisecond}
 var clientWin = &http.Client{Timeout: time.Duration(1000) * time.Millisecond}
 
-func er(e error) {
+func er(e error, errPoint string) {
 	if e != nil {
-		log.Println("Faile", e)
+		log.Println(errPoint, e)
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	sdkreq := SdkRequest{}
+	sdkreq := SDKRequest{}
 	if r.Method == "POST" {
-		data, _ := ioutil.ReadAll(r.Body)
+		data, err := ioutil.ReadAll(r.Body)
+		er(err, "Post Request")
 		json.Unmarshal(data, &sdkreq)
 	} else {
 		sdkreq.AppID = 123
@@ -78,7 +82,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	id, _ := uuid.NewUUID()
 	ids := id.String()
 
-	dsprequest := DspRequest{
+	dsprequest := DSPRequest{
 		SspName:     "r_ryusei",
 		RequestTime: now(),
 		RequestID:   ids,
@@ -92,7 +96,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		go func(host string) {
 			// HostArray[i]はurlの配列を一つ一つに分解したもの
 
-			ch <- request(dsprequest, host)
+			ch <- SendRequest(dsprequest, host)
 		}(host)
 	}
 
@@ -106,13 +110,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(auction) == 0 {
 		// dspのレスポンスが全てなかった場合
-		dsp := DspResponse{
+		dsp := DSPResponse{
 			RequestID: ids,
 			URL:       "http://自社広告.コム:8080/ごめんね",
 			Price:     0,
 		}
 		data := PriceInfo{
-			DspResponse: dsp,
+			DSPResponse: dsp,
 		}
 		auction = append(auction, data)
 	} else if len(auction) == 1 {
@@ -121,29 +125,35 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			RequestID: ids,
 			Price:     1,
 		}
-		winrequest(win, HostArray[0])
+
+		// 親の関数が終了しても後ろで動いていると信じたい
+		// ので特にまったりしましぇん
+		go SendWinRequest(win, HostArray[0])
 
 	} else {
 		// ソートするやつ 数値以外が来たら終わる
-		sort.Slice(auction, func(i, j int) bool { return auction[i].DspResponse.Price > auction[j].DspResponse.Price })
+		sort.Slice(auction, func(i, j int) bool { return auction[i].DSPResponse.Price > auction[j].DSPResponse.Price })
 		// とりあえず一つに対して送る処理
 		win := WinNotice{
 			RequestID: ids,
-			Price:     auction[1].DspResponse.Price,
+			Price:     auction[1].DSPResponse.Price,
 		}
 
-		// TODO これを修正したい
-		winrequest(win, HostArray[0])
+		// 親の関数が終了しても後ろで動いていると信じたい
+		// ので特にまったりしましぇん
+		go SendWinRequest(win, auction[0].DspHost)
 	}
 
-	sspjson := SspResponse{URL: auction[0].DspResponse.URL}
+	sspjson := SSPResponse{URL: auction[0].DSPResponse.URL}
 	out, _ := json.Marshal(sspjson)
 	outjson := string(out)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, outjson)
 }
 
-func request(dsprequest DspRequest, url string) PriceInfo {
+// SendRequest is dsp request
+func SendRequest(dsprequest DSPRequest, url string) PriceInfo {
+	url = url + "/req"
 	reqjson, _ := json.Marshal(dsprequest)
 	req, _ := http.NewRequest(
 		"POST",
@@ -158,20 +168,22 @@ func request(dsprequest DspRequest, url string) PriceInfo {
 		//変に値が帰ってきても困るので
 		return PriceInfo{Status: false}
 	}
-	dsp := DspResponse{}
+	dsp := DSPResponse{}
 	data, _ := ioutil.ReadAll(res.Body)
 	json.Unmarshal(data, &dsp)
 	res.Body.Close() // メッソドを見つけたからCloseしとくけどやらないと行けないかは謎
 
 	priceinfo := PriceInfo{
 		DspHost:     url,
-		DspResponse: dsp,
+		DSPResponse: dsp,
 		Status:      true,
 	}
 	return priceinfo
 }
 
-func winrequest(win WinNotice, url string) {
+// SendWinRequest is winnotice request
+func SendWinRequest(win WinNotice, url string) {
+	url = url + "/win"
 	json, _ := json.Marshal(win)
 	req, _ := http.NewRequest(
 		"POST",
@@ -198,20 +210,26 @@ func now() string {
 
 func main() {
 	fmt.Println("unix server start")
-	fmt.Println(HostArray)
+	// fmt.Println(HostArray)
 	// mux := http.NewServeMux()
 	// mux.HandleFunc("/req", handler)
-	// li, err := net.Listen("unix","/var/run/go/go.socket")
+
+	// li, err := net.Listen("unix", "/var/run/go/go.socket")
 	// if err != nil {
 	// 	panic(err)
 	// }
 
-	// err = http.Serve(li,mux)
+	// err = http.Serve(li, mux)
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// li.Close()
 
-	http.HandleFunc("/req", handler)	
-	log.Fatalln(http.ListenAndServe(":8888", nil))
+	listen, err := net.Listen("unix", "/var/run/go/go.socket")
+	http.HandleFunc("/req", handler)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fcgi.Serve(listen, nil)
+	// log.Fatalln(http.ListenAndServe(":8888", nil))
 }
